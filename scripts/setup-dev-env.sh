@@ -76,6 +76,7 @@ provision_python_venv() {
     if [[ ! -x "${VENV_DIR}/bin/python" ]]; then
       python3 -m venv "${VENV_DIR}"
     fi
+    "${VENV_DIR}/bin/pip" install --quiet --upgrade "pip>=26.2"
     "${VENV_DIR}/bin/pip" install --quiet --disable-pip-version-check -e "${REPO_ROOT}[dev]"
   fi
 }
