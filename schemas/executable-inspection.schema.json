@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gloryos.org/schemas/executable-inspection.schema.json",
+  "title": "GloryBridge Executable Inspection Report",
+  "description": "Static inspection contract produced by Runtime Engineer and consumed by Compatibility Engineer, Desktop Engineer, and Security Auditor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "file_path",
+    "sha256",
+    "format",
+    "architecture",
+    "is_installer",
+    "auto_execute_allowed",
+    "frameworks",
+    "imported_dlls",
+    "compatibility_status",
+    "recommended_runtime",
+    "warnings",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "file_path": { "type": "string", "minLength": 1 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "format": {
+      "type": "string",
+      "enum": ["pe32", "pe32_plus", "msi", "msix", "ne_16bit", "dos_mz", "unknown"]
+    },
+    "architecture": {
+      "type": "string",
+      "enum": ["x86_64", "x86", "arm64", "neutral", "unknown"]
+    },
+    "subsystem": {
+      "type": "string",
+      "enum": ["windows_gui", "windows_cui", "native_driver", "efi", "unknown"]
+    },
+    "is_installer": { "type": "boolean" },
+    "installer_kind": {
+      "type": "string",
+      "enum": ["none", "inno", "nsis", "msi", "burn", "sfx_7z", "msix", "unknown"]
+    },
+    "auto_execute_allowed": {
+      "description": "Downloaded installers must never auto-execute.",
+      "type": "boolean"
+    },
+    "frameworks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "win32",
+          "dotnet_portable",
+          "dotnet_framework_win",
+          "dotnet_wpf",
+          "dotnet_winforms",
+          "dotnet_winui",
+          "directx9",
+          "directx11",
+          "directx12",
+          "vulkan",
+          "opengl",
+          "qt",
+          "sdl"
+        ]
+      }
+    },
+    "imported_dlls": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "compatibility_status": {
+      "type": "string",
+      "enum": ["supported_native", "supported_compatibility", "degraded", "unsupported"]
+    },
+    "recommended_runtime": {
+      "type": "string",
+      "enum": ["dotnet-linux", "wine", "proton-umu", "none"]
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "kernel_driver_dependency",
+          "kernel_anticheat_detected",
+          "msix_uwp_unsupported",
+          "legacy_16bit_binary",
+          "unsupported_architecture"
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "is_installer": { "const": true } } },
+      "then": { "properties": { "auto_execute_allowed": { "const": false } } }
+    },
+    {
+      "if": { "properties": { "compatibility_status": { "const": "unsupported" } } },
+      "then": { "properties": { "recommended_runtime": { "const": "none" } } }
+    }
+  ]
+}

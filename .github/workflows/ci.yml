@@ -1,0 +1,23 @@
+name: GloryOS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-m0:
+    name: Lint, Typecheck, Contracts, Tests & Security Audit
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up workspace environment
+        run: bash scripts/setup-dev-env.sh
+
+      - name: Run full verification gate
+        run: make check

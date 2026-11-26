@@ -1,0 +1,81 @@
+schema_version: "1.0"
+
+distro:
+  id: gloryos
+  name: "GloryOS"
+  version: "0.1.0-alpha"
+  codename: "aurora"
+  architecture: x86_64
+
+upstream_base:
+  distribution: ubuntu
+  suite: resolute
+  lts: true
+  components:
+    - main
+    - universe
+
+boot:
+  uefi: true
+  bootloader: grub-efi-amd64
+  require_online_account: false
+
+kernel:
+  package: linux-image-generic
+  autoload_modules:
+    - ntsync
+
+installer:
+  framework: calamares
+  offline_capable: true
+
+layers:
+  base:
+    milestone: M1
+    description: "Minimal bootable Ubuntu 26.04 LTS UEFI foundation, APT, networking, and systemd"
+    packages:
+      - ubuntu-minimal
+      - systemd-sysv
+      - linux-image-generic
+      - initramfs-tools
+      - grub-efi-amd64-bin
+      - casper
+      - network-manager
+      - ca-certificates
+      - sudo
+      - curl
+      - zstd
+
+  desktop:
+    milestone: M2
+    description: "Lightweight KDE Plasma 6 Wayland session, KWin compositor, XWayland, and SDDM"
+    packages:
+      - plasma-desktop
+      - plasma-workspace
+      - kwin-wayland
+      - xwayland
+      - sddm
+      - dolphin
+      - konsole
+      - breeze
+      - kde-spectacle
+      - pipewire-audio
+
+  compatibility:
+    milestone: M3
+    description: "Wine Windows API layer, Winetricks helper, Vulkan/Mesa drivers, and bubblewrap isolation"
+    packages:
+      - wine
+      - winetricks
+      - mesa-vulkan-drivers
+      - libvulkan1
+      - bubblewrap
+      - cabextract
+      - p7zip-full
+
+  dotnet:
+    milestone: M6
+    description: "Microsoft open-source .NET LTS runtime for native Linux CIL execution"
+    packages:
+      - dotnet-runtime-10.0
+      - dotnet-runtime-8.0

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gloryos.org/schemas/distro-manifest.schema.json",
+  "title": "GloryOS Distribution Manifest",
+  "description": "Declarative contract between Architect, Linux Engineer, and Build Engineer defining the target Ubuntu LTS base, boot mode, kernel modules, and modular package layers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "distro",
+    "upstream_base",
+    "boot",
+    "kernel",
+    "installer",
+    "layers"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "distro": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "version", "codename", "architecture"],
+      "properties": {
+        "id": { "type": "string", "const": "gloryos" },
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-z0-9.]+)?$" },
+        "codename": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
+        "architecture": { "type": "string", "enum": ["x86_64"] }
+      }
+    },
+    "upstream_base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["distribution", "suite", "lts", "components"],
+      "properties": {
+        "distribution": { "type": "string", "const": "ubuntu" },
+        "suite": { "type": "string", "enum": ["resolute", "noble"] },
+        "lts": { "type": "boolean", "const": true },
+        "components": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["main", "universe", "restricted", "multiverse"]
+          }
+        }
+      }
+    },
+    "boot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uefi", "bootloader", "require_online_account"],
+      "properties": {
+        "uefi": { "type": "boolean", "const": true },
+        "bootloader": { "type": "string", "enum": ["grub-efi-amd64"] },
+        "require_online_account": { "type": "boolean", "const": false }
+      }
+    },
+    "kernel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "autoload_modules"],
+      "properties": {
+        "package": { "type": "string", "minLength": 1 },
+        "autoload_modules": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9_-]+$" }
+        }
+      }
+    },
+    "installer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["framework", "offline_capable"],
+      "properties": {
+        "framework": { "type": "string", "enum": ["calamares"] },
+        "offline_capable": { "type": "boolean", "const": true }
+      }
+    },
+    "layers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "desktop", "compatibility", "dotnet"],
+      "properties": {
+        "base": { "$ref": "#/$defs/package_layer" },
+        "desktop": { "$ref": "#/$defs/package_layer" },
+        "compatibility": { "$ref": "#/$defs/package_layer" },
+        "dotnet": { "$ref": "#/$defs/package_layer" }
+      }
+    }
+  },
+  "$defs": {
+    "package_layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["milestone", "description", "packages"],
+      "properties": {
+        "milestone": { "type": "string", "pattern": "^M[0-9]$" },
+        "description": { "type": "string", "minLength": 1 },
+        "packages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9+.-]+$" }
+        }
+      }
+    }
+  }
+}

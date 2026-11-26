@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gloryos.org/schemas/compatibility-profile.schema.json",
+  "title": "GloryBridge Application Compatibility Profile",
+  "description": "Contract between GloryBridge and Glory Desktop defining isolated prefix configuration, runner selection, display backend, and host filesystem isolation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile_id",
+    "application_name",
+    "executable_path",
+    "runtime",
+    "display_backend",
+    "isolation"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "profile_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{1,62}$" },
+    "application_name": { "type": "string", "minLength": 1 },
+    "executable_path": { "type": "string", "minLength": 1 },
+    "arguments": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "runtime": {
+      "type": "string",
+      "enum": ["wine", "proton-umu", "dotnet-linux"]
+    },
+    "prefix_name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{1,62}$"
+    },
+    "windows_version": {
+      "type": "string",
+      "enum": ["win11", "win10", "win81", "win7"]
+    },
+    "display_backend": {
+      "type": "string",
+      "enum": ["xwayland", "wayland", "headless"]
+    },
+    "enable_ntsync": {
+      "type": "boolean",
+      "default": true
+    },
+    "graphics_translation": {
+      "type": "string",
+      "enum": ["wined3d", "dxvk", "vkd3d-proton", "native"]
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expose_host_root_drive", "isolated_appdata"],
+      "properties": {
+        "expose_host_root_drive": { "type": "boolean" },
+        "isolated_appdata": { "type": "boolean" }
+      }
+    }
+  }
+}

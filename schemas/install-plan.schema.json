@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gloryos.org/schemas/install-plan.schema.json",
+  "title": "GloryOS Package Installation Plan",
+  "description": "Auditable installation plan produced by Package Engineer for APT or WinGet-sourced packages, enforcing explicit user authorization and SHA-256 verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_id",
+    "display_name",
+    "version",
+    "license",
+    "source_ecosystem",
+    "selected_strategy",
+    "requires_user_authorization",
+    "auto_execute",
+    "summary",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "package_id": { "type": "string", "minLength": 1 },
+    "display_name": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "license": { "type": "string", "minLength": 1 },
+    "source_ecosystem": {
+      "type": "string",
+      "enum": ["apt", "winget"]
+    },
+    "selected_strategy": {
+      "type": "string",
+      "enum": ["apt_native", "winget_via_glorybridge", "winget_via_dotnet", "rejected_unsupported"]
+    },
+    "native_apt_alternative": {
+      "type": "string"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "sha256", "installer_type", "architecture"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^https://" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "installer_type": {
+          "type": "string",
+          "enum": ["inno", "nullsoft", "msi", "wix", "burn", "portable", "zip"]
+        },
+        "architecture": {
+          "type": "string",
+          "enum": ["x64", "x86", "neutral"]
+        }
+      }
+    },
+    "target_prefix": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{1,62}$"
+    },
+    "requires_user_authorization": {
+      "description": "Every installation plan must be explicitly authorized by the user.",
+      "type": "boolean",
+      "const": true
+    },
+    "auto_execute": {
+      "description": "Arbitrary manifest commands must never auto-execute.",
+      "type": "boolean",
+      "const": false
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "selected_strategy": { "enum": ["winget_via_glorybridge", "winget_via_dotnet"] }
+        }
+      },
+      "then": {
+        "required": ["artifact", "target_prefix"]
+      }
+    }
+  ]
+}
