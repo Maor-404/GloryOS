@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling>=1.24.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gloryos-core"
+version = "0.1.0a0"
+description = "Core contract validation and environment preflight tooling for GloryOS"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema>=4.22.0",
+    "pefile>=2023.2.7",
+    "pyyaml>=6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.10.0",
+    "pip-audit>=2.7.3",
+    "pytest>=8.2.0",
+    "ruff>=0.5.0",
+    "types-jsonschema>=4.22.0",
+    "types-PyYAML>=6.0.12",
+]
+
+[project.scripts]
+gloryos = "gloryos_core.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gloryos_core"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["gloryos_core"]
+
+[[tool.mypy.overrides]]
+module = ["pefile"]
+ignore_missing_imports = true
